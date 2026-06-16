@@ -1,5 +1,31 @@
 # Change Log
 
+## 0.11.3
+
+### Patch Changes
+
+- fix: 修复 mermaid 渲染失败后选中编辑框依然渲染漂移 [@RSS1102](https://github.com/RSS1102)([#1762](https://github.com/Tencent/cherry-markdown/pull/1762))([`1fe23d4`](https://github.com/Tencent/cherry-markdown/commit/1fe23d43a13ded6f0b15fbfbbc67dcd313a05771))
+- - fix(pasteHelper): 修复粘贴 HTML 后切换 TEXT 导致内容重复 [@RSS1102](https://github.com/RSS1102)([#1765](https://github.com/Tencent/cherry-markdown/pull/1765))([`135d212`](https://github.com/Tencent/cherry-markdown/commit/135d212fb929f532c5e8efbb8f0f9327a347c5a2))
+- fix: #1752 支持mathjax的延时加载 [@sunsonliu](https://github.com/sunsonliu)([#1758](https://github.com/Tencent/cherry-markdown/pull/1758))([`43495c4`](https://github.com/Tencent/cherry-markdown/commit/43495c4fb8c8b6a46871f5168a51dae366e395df))
+- fix: 代码块缓存机制导致mermaid没有正确渲染 [@sunsonliu](https://github.com/sunsonliu)([#1761](https://github.com/Tencent/cherry-markdown/pull/1761))([`2a3407f`](https://github.com/Tencent/cherry-markdown/commit/2a3407fa5384f774aa5b6c15a9cf46f1e44fb50f))
+- fix: 修复htmlBlock分批转义提速逻辑破坏原始内容的bug [@sunsonliu](https://github.com/sunsonliu)([#1755](https://github.com/Tencent/cherry-markdown/pull/1755))([`d004126`](https://github.com/Tencent/cherry-markdown/commit/d00412618d56f5e858253c2e8c5b9fec295ccdd9))
+- feat: 支持mermaid延时加载 [@sunsonliu](https://github.com/sunsonliu)([#1757](https://github.com/Tencent/cherry-markdown/pull/1757))([`572f204`](https://github.com/Tencent/cherry-markdown/commit/572f204571e25b4d80256075f1e3a6e8d12404fc))
+
+## 0.11.2
+
+### Patch Changes
+
+- fix: 修复echarts5+不再支持的api [@sunsonliu](https://github.com/sunsonliu)([#1725](https://github.com/Tencent/cherry-markdown/pull/1725))([`ba41211`](https://github.com/Tencent/cherry-markdown/commit/ba412115fc1364b830feebe81c4d66474413557f))
+- fix: 修复 mermaid 图表尺寸拖拽后工具栏漂移 [@Yong-yuan-X](https://github.com/Yong-yuan-X)([#1741](https://github.com/Tencent/cherry-markdown/pull/1741))([`dbd793c`](https://github.com/Tencent/cherry-markdown/commit/dbd793c3b2a1bb89a6e537c6f3735eec7a89c06f))
+- 内部优化样式构建：Sass 迁移至模块系统（`@use` / `@forward`），并使用 `rollup-plugin-sass` 现代编译 API，消除构建时的弃用警告。
+
+- 对使用者无破坏性变更，与原有 API、主题类名保持不变。
+- ⚠️ 若你通过自定义 CSS 覆盖 `.cherry-bubble` 相关样式，建议在升级后确认预览区图片工具条外观是否符合预期。 [@RSS1102](https://github.com/RSS1102)([#1745](https://github.com/Tencent/cherry-markdown/pull/1745))([`4f8ea67`](https://github.com/Tencent/cherry-markdown/commit/4f8ea67c0513ee7a91642469a3631aeb56ee8cad))
+- fix: mathjax报错导致engine.makeHtml中断 [@sunsonliu](https://github.com/sunsonliu)([#1726](https://github.com/Tencent/cherry-markdown/pull/1726))([`26fc2eb`](https://github.com/Tencent/cherry-markdown/commit/26fc2eb1c14be7029664f4bfe9730bcc54844716))
+- feat: 多项性能与稳定性优化 [@sunsonliu](https://github.com/sunsonliu)([#1742](https://github.com/Tencent/cherry-markdown/pull/1742))([`823279b`](https://github.com/Tencent/cherry-markdown/commit/823279bef9131e7979b801517e0fed4c98767e44))
+- fix: #1722 优化装饰器的相关逻辑，优化异步粘贴回调的逻辑 [@sunsonliu](https://github.com/sunsonliu)([#1727](https://github.com/Tencent/cherry-markdown/pull/1727))([`1364a7d`](https://github.com/Tencent/cherry-markdown/commit/1364a7d590c9e5db75aa23c852243185de8ce34a))
+- fix: 修复纯预览demo报错 [@sunsonliu](https://github.com/sunsonliu)([#1743](https://github.com/Tencent/cherry-markdown/pull/1743))([`0cd1d0f`](https://github.com/Tencent/cherry-markdown/commit/0cd1d0fc0dee16217d822a53a0084c45307d991d))
+
 ## 0.11.1
 
 ### Patch Changes
