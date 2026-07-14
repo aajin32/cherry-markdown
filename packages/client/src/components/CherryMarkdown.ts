@@ -14,6 +14,7 @@ import { WINDOW_EVENTS } from '../constants/events';
  * 3. 支持按需导入echarts功能
  */
 import * as echarts from 'echarts';
+import type { CherryEditorInstance } from './editorTypes';
 
 /**
  * ECharts类型兼容性处理
@@ -21,28 +22,40 @@ import * as echarts from 'echarts';
  * 这里定义兼容性接口确保类型安全
  */
 interface EChartsInstance {
-  init: (dom: HTMLElement, theme?: string, opts?: any) => any;
-  [key: string]: any;
+  init: typeof echarts.init;
 }
 
-// 确保echarts实例的类型兼容性
-const echartsInstance: EChartsInstance = echarts as any;
+const echartsInstance: EChartsInstance = echarts;
 
 const toPinyin = (text: string) => pinyin(text, { style: pinyin.STYLE_TONE, heteronym: false }).flat().join(' ');
+
+type CherryMenuHook = ReturnType<typeof Cherry.createMenuHook>;
+type ToolbarRightConfig = NonNullable<CherryOptions<CustomConfig>['toolbars']>['toolbarRight'];
+
+interface ToolbarMenuHookContext {
+  $cherry: Pick<CherryEditorInstance, 'getMarkdown' | 'switchModel'> & {
+    getStatus(): { editor: string };
+  };
+  updateMarkdown: boolean;
+}
 
 type CustomConfig = {
   CustomToolbar: {
     CustomMenuType: {
-      customMenu_fileUpload: any;
-      customMenuChangeModule: any;
-      customSave: any;
+      customMenu_fileUpload?: CherryMenuHook;
+      customMenuChangeModule: CherryMenuHook;
+      customSave: CherryMenuHook;
     };
   };
 };
 
+// Cherry upstream types do not include custom menu ids in toolbarRight,
+// but runtime supports them through customMenu registration.
+const toolbarRight = ['customSave', '|', 'export', 'togglePreview'] as unknown as ToolbarRightConfig;
+
 const customMenuChangeModule = Cherry.createMenuHook('编辑', {
-  iconName: 'pen',
-  onClick() {
+  iconName: 'pen' as const,
+  onClick(this: ToolbarMenuHookContext) {
     const { editor } = this.$cherry.getStatus();
     if (editor === 'show') {
       this.$cherry.switchModel('previewOnly');
@@ -52,14 +65,13 @@ const customMenuChangeModule = Cherry.createMenuHook('编辑', {
   },
 });
 
-const customSave = Cherry.createMenuHook('save', {
+const customSave = Cherry.createMenuHook('保存', {
   icon: {
-    type: 'svg',
-    iconStyle: 'width:16px;height:16px;',
-    content:
-      '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><path d="M5 3.5h8.5l1.5 1.5V16.5H5z" /><path d="M7 3.5v5h6V3.5" /><path d="M7 14.5h6" /></svg>',
+    // type: 'svg',
+    // iconStyle: 'width:16px;height:16px;',
+    noIcon: true,
   },
-  onClick() {
+  onClick(this: ToolbarMenuHookContext) {
     this.updateMarkdown = false;
     if (typeof window !== 'undefined' && typeof window.dispatchEvent === 'function') {
       const markdown = this.$cherry?.getMarkdown?.() ?? '';
@@ -235,7 +247,7 @@ const cherryConfig: CherryOptions<CustomConfig> = {
           'image',
           // 'audio',
           // 'video',
-          // 'link',
+          'link',
           'hr',
           'br',
           'code',
@@ -257,7 +269,7 @@ const cherryConfig: CherryOptions<CustomConfig> = {
       'search',
       'shortcutKey',
     ],
-    toolbarRight: ['customSave', 'export', '|', 'togglePreview'] as any[],
+    toolbarRight,
     bubble: ['bold', 'italic', 'underline', 'strikethrough', 'sub', 'sup', 'quote', 'ruby', '|', 'size', 'color'], // array or false
     sidebar: ['customMenuChangeModule', 'mobilePreview', 'copy', 'theme'],
     // hiddenToolbar: [''],
@@ -358,8 +370,6 @@ const cherryConfig: CherryOptions<CustomConfig> = {
     themeList: [
       { className: 'default', label: '默认' }, // 曾用名：light 明亮
       { className: 'dark', label: '暗黑' },
-      { className: 'gray', label: '沉稳' },
-      { className: 'abyss', label: '深海' },
       { className: 'green', label: '清新' },
       { className: 'red', label: '热情' },
       { className: 'violet', label: '淡雅' },
