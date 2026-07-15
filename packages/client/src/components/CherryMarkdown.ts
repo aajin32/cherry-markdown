@@ -15,6 +15,7 @@ import { WINDOW_EVENTS } from '../constants/events';
  */
 import * as echarts from 'echarts';
 import type { CherryEditorInstance } from './editorTypes';
+import { getCurrentLightbox } from './composables/useImageLightbox';
 
 /**
  * ECharts类型兼容性处理
@@ -33,7 +34,7 @@ type CherryMenuHook = ReturnType<typeof Cherry.createMenuHook>;
 type ToolbarRightConfig = NonNullable<CherryOptions<CustomConfig>['toolbars']>['toolbarRight'];
 
 interface ToolbarMenuHookContext {
-  $cherry: Pick<CherryEditorInstance, 'getMarkdown' | 'switchModel'> & {
+  $cherry: Pick<CherryEditorInstance, 'getMarkdown' | 'switchModel' | 'focusMode'> & {
     getStatus(): { editor: string };
   };
   updateMarkdown: boolean;
@@ -60,7 +61,11 @@ const customMenuChangeModule = Cherry.createMenuHook('编辑', {
     if (editor === 'show') {
       this.$cherry.switchModel('previewOnly');
     } else {
-      this.$cherry.switchModel('edit&preview');
+      if (this.$cherry.focusMode) {
+        this.$cherry.switchModel('editOnly', false);
+      } else {
+        this.$cherry.switchModel('edit&preview');
+      }
     }
   },
 });
@@ -251,7 +256,7 @@ const cherryConfig: CherryOptions<CustomConfig> = {
           'hr',
           'br',
           'code',
-          // 'inlineCode',
+          'quote',
           // 'formula',
           'toc',
           'table',
@@ -271,7 +276,8 @@ const cherryConfig: CherryOptions<CustomConfig> = {
     ],
     toolbarRight,
     bubble: ['bold', 'italic', 'underline', 'strikethrough', 'sub', 'sup', 'quote', 'ruby', '|', 'size', 'color'], // array or false
-    sidebar: ['customMenuChangeModule', 'mobilePreview', 'copy', 'theme'],
+    sidebar: ['customMenuChangeModule', 'mobilePreview', 'copy', 'theme', 'codeTheme'],
+    float: false,
     // hiddenToolbar: [''],
     // sidebar: ['customMenuChangeModule', 'mobilePreview', 'copy', 'theme', 'codeTheme'],
     toc: {
@@ -362,20 +368,39 @@ const cherryConfig: CherryOptions<CustomConfig> = {
   callback: {
     // 把中文变成拼音的回调，当然也可以把中文变成英文、英文变成中文
     changeString2Pinyin: toPinyin,
+    /**
+     * 预览区点击回调
+     * - 仅在纯预览模式（status.editor !== 'show'）下接管图片点击，弹出 viewerjs 大图
+     * - 返回 false 会中断 cherry 内部后续处理（如图片编辑气泡），避免冲突
+     */
+    onClickPreview(e: MouseEvent) {
+      const { target } = e;
+      if (!(target instanceof HTMLImageElement)) {
+        return;
+      }
+      // 通过 lazy import 避免循环依赖
+      const lightbox = getCurrentLightbox();
+      if (!lightbox) {
+        return;
+      }
+      if (lightbox.open(target)) {
+        return false;
+      }
+    },
   },
   /** 定义cherry缓存的作用范围，相同nameSpace的实例共享localStorage缓存 */
   nameSpace: 'cherry',
   themeSettings: {
     // 主题列表，用于切换主题
     themeList: [
-      { className: 'default', label: '默认' }, // 曾用名：light 明亮
+      { className: 'default', label: '明亮' }, // 曾用名：light 明亮
       { className: 'dark', label: '暗黑' },
       { className: 'green', label: '清新' },
       { className: 'red', label: '热情' },
       { className: 'violet', label: '淡雅' },
       { className: 'blue', label: '清幽' },
     ],
-    mainTheme: 'default',
+    mainTheme: 'violet',
     codeBlockTheme: 'twilight',
     inlineCodeTheme: 'red', // red or black
   },
